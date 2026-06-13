@@ -1,33 +1,46 @@
-# VIT Contracts
-
-**Smart contracts for the VIT Network** — deployed on Base L2 (chain ID 8453).
-
-[![Solidity](https://img.shields.io/badge/Solidity-0.8-363636?style=flat-square&logo=solidity)](https://soliditylang.org)
-[![Base L2](https://img.shields.io/badge/Network-Base_L2-0052ff?style=flat-square)](https://base.org)
-[![Foundry](https://img.shields.io/badge/Framework-Foundry-orange?style=flat-square)](https://getfoundry.sh)
-
-## Contracts
+# vit-contracts — VIT Network Smart Contracts (Base L2)
 
 | Contract | Description |
 |----------|-------------|
-| `UniversalOracle.sol` | On-chain result verification for sports and elections |
-| `VITCoin.sol` | ERC-20 utility token with gasless transfers via Biconomy |
-| `DIDRegistry.sol` | W3C-compliant decentralised identity registry |
-| `SignalStaking.sol` | Staking and slashing for signal marketplace participants |
-| `LoyaltyVault.sol` | Automated yield distribution for ecosystem participants |
+| VITToken | ERC-20, 1B cap, mintable, burnable, 1% transfer fee |
+| UniversalOracle | Price + match-outcome feeds, quorum voting |
+| ShopManager | Merchant registry, VIT payment processor (2.5% protocol fee) |
 
 ## Setup
 
 ```bash
-curl -L https://foundry.paradigm.xyz | bash
-foundryup
-forge install
-forge build
-forge test
+npm install
+cp .env.example .env   # fill DEPLOYER_PRIVATE_KEY, TREASURY_ADDRESS, RPC URLs
+```
+
+## Compile & Test
+
+```bash
+npm run compile
+npm test
 ```
 
 ## Deploy
 
 ```bash
-forge script script/Deploy.s.sol --rpc-url base --broadcast --verify
+npm run deploy          # Base Sepolia (testnet)
+npm run deploy:mainnet  # Base Mainnet
+```
+
+## After Deploy
+
+Copy addresses from `deployments/base.json` into the vit backend .env:
+
+```
+VIT_TOKEN_ADDRESS=0x...
+UNIVERSAL_ORACLE_ADDRESS=0x...
+SHOP_MANAGER_ADDRESS=0x...
+```
+
+## Architecture
+
+```
+VITToken  <──  ShopManager (pays in VIT, deducts platform fee to treasury)
+                     |
+              UniversalOracle (settles match outcomes on-chain via quorum)
 ```
